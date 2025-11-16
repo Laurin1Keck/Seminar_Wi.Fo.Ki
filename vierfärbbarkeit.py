@@ -1,6 +1,8 @@
 import numpy as np
 import scipy
 
+V
+E
 
 n = len(V)
 
