@@ -3,7 +3,7 @@ import numpy as np
 import scipy
 import itertools
 
-m = 10
+m = 
 menge = {i for i in range(m)}
 potenzmenge = [set(c) for r in range(len(menge) + 1)
                for c in itertools.combinations(menge, r)]
