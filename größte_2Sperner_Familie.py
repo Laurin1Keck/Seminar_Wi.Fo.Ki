@@ -30,8 +30,8 @@ c = -np.ones(l, dtype=int)
 result = scipy.optimize.linprog(c, A, b, bounds=(0,1), integrality=1)
 result.x
 
-antichain = []
+sperner = []
 for i in range(l):
     if result.x[i] == 1:
-        antichain.append(potenzmenge[i])
-print(antichain)
+        sperner.append(potenzmenge[i])
+print(sperner)
