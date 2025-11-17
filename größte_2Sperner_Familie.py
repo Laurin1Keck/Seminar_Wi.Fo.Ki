@@ -1,65 +1,37 @@
+
+import numpy as np
 import scipy
 import itertools
-import numpy as np
-from scipy.optimize import milp, LinearConstraint, Bounds
 
-n = 6
+m = 4
+menge = {i for i in range(m)}
+potenzmenge = [set(c) for r in range(len(menge) + 1)
+               for c in itertools.combinations(menge, r)]
+l = len(potenzmenge)
 
-elements = list(range(1, n + 1))
+A = []
+b = []
 
-subsets = []
-for r in range(n + 1):
-    for comb in itertools.combinations(elements, r):
-        subsets.append(frozenset(comb))
+for B in potenzmenge:
+    for C in potenzmenge:
+        if B < C:
+            for D in potenzmenge:
+                    if D > C:
+                        row = np.zeros(l)
+                        row[potenzmenge.index(B)] = 1
+                        row[potenzmenge.index(C)] = 1
+                        row[potenzmenge.index(D)] = 1
+                        A.append(row)
+                        b.append(2)
 
-m = len(subsets)
+bounds = [(0, 1)] * l
+c = -np.ones(l, dtype=int)
 
-triples = []
-for A in subsets:
-    for B in subsets:
-        if A < B:  
-            for C in subsets:
-                if B < C:
-                    triples.append((A, B, C))
+result = scipy.optimize.linprog(c, A, b, bounds=(0,1), integrality=1)
+result.x
 
-
-
-A_list = []
-b_list = []
-
-for (A, B, C) in triples:
-    row = np.zeros(m)
-
-    row[subsets.index(A)] = 1
-    row[subsets.index(B)] = 1
-    row[subsets.index(C)] = 1
-
-    A_list.append(row)
-    b_list.append(2)
-
-A_matrix = np.array(A_list)
-b_vector = np.array(b_list)
-
-constraints = LinearConstraint(A_matrix, lb=-np.inf, ub=b_vector)
-
-
-c = -np.ones(m)
-
-
-bounds = Bounds(lb=np.zeros(m), ub=np.ones(m))
-integrality = np.ones(m)  
-
-
-res = milp(c=c,
-           constraints=constraints,
-           bounds=bounds,
-           integrality=integrality)
-
-print("Status:", res.message)
-print("Maximale Größe der 2-Sperner-Familie:", -res.fun)
-
-chosen = [subsets[i] for i, val in enumerate(res.x) if val > 0.5]
-
-print("\nAusgewählte Mengen:")
-for s in chosen:
-    print(set(s))
+antichain = []
+for i in range(l):
+    if result.x[i] == 1:
+        antichain.append(potenzmenge[i])
+print(antichain)
